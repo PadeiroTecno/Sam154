@@ -3,7 +3,7 @@ import { ChevronLeft, Play, Copy, Eye, Settings, Monitor, Smartphone, Globe, Cod
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
-import IFrameVideoPlayer from '../../components/IFrameVideoPlayer';
+import StreamingPlayerManager from '../../components/players/StreamingPlayerManager';
 
 interface PlayerConfig {
   id: string;
@@ -480,60 +480,14 @@ const Players: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
-            {renderPlayerPreview(playerConfigs.find(p => p.id === activePlayer)!)}
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Recursos Ativos</h3>
-              <div className="flex flex-wrap gap-2">
-                {playerConfigs.find(p => p.id === activePlayer)?.features.map((feature, index) => (
-                  <span key={index} className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => openPreview()}
-                className="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                {playlistTransmissionActive ? `📺 Visualizar Playlist: ${activePlaylistName}` :
-                 obsStreamActive ? 'Visualizar OBS ao Vivo' : 
-                 'Visualizar Stream'}
-              </button>
-
-              {sampleVideos.length > 0 && (
-                <button
-                  onClick={() => openPreview(sampleVideos[0])}
-                  className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center justify-center"
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Testar com Vídeo
-                </button>
-              )}
-              
-              <button
-                onClick={() => {
-                  const streamName = getActiveStreamName();
-                  const url = playerUrl || `/api/player-port/iframe?stream=${streamName}`;
-                  window.open(url, '_blank');
-                }}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center justify-center"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                {playlistTransmissionActive ? '📺 Abrir Playlist Externa' :
-                 obsStreamActive ? 'Abrir OBS Externo' : 
-                 'Abrir Player Externo'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <StreamingPlayerManager
+          className="w-full"
+          showPlayerSelector={true}
+          enableSocialSharing={true}
+          enableViewerCounter={true}
+          enableWatermark={true}
+          autoDetectStream={true}
+        />
       </div>
 
       {/* Lista de Players Disponíveis */}

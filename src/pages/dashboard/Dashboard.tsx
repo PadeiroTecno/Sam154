@@ -7,7 +7,7 @@ import {
   AlertCircle, CheckCircle, Wifi, WifiOff, Server, HardDrive
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import IFrameVideoPlayer from '../../components/IFrameVideoPlayer';
+import StreamingPlayerManager from '../../components/players/StreamingPlayerManager';
 
 interface DashboardStats {
   totalVideos: number;
@@ -524,61 +524,14 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="aspect-video bg-gray-900 rounded-xl overflow-hidden">
-              {showPlayer && currentVideoUrl ? (
-                <IFrameVideoPlayer
-                  src={currentVideoUrl}
-                  title={playlistName || streamStatus?.transmission?.titulo || 'Transmissão ao Vivo'}
-                  isLive={streamStatus?.is_live || false}
-                  autoplay={false}
-                  controls={true}
-                  className="w-full h-full"
-                  onLoad={() => console.log('IFrame Dashboard carregado')}
-                  onError={(error) => {
-                    console.error('Erro no IFrame Dashboard:', error);
-                    setPlayerError('Erro ao carregar player');
-                  }}
-                  onReady={() => {
-                    console.log('IFrame Dashboard pronto');
-                    setPlayerError(null);
-                  }}
-                  streamStats={streamStatus?.is_live ? {
-                    viewers: streamStatus.transmission?.stats.viewers || streamStatus.obs_stream?.viewers || 0,
-                    bitrate: streamStatus.transmission?.stats.bitrate || streamStatus.obs_stream?.bitrate || 0,
-                    uptime: streamStatus.transmission?.stats.uptime || streamStatus.obs_stream?.uptime || '00:00:00',
-                    quality: '1080p',
-                    isRecording: streamStatus.obs_stream?.recording || false
-                  } : undefined}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                  <div className="w-20 h-20 bg-white bg-opacity-10 rounded-2xl flex items-center justify-center mb-4">
-                    <Play className="h-10 w-10" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">
-                    {playerError ? 'Erro no Player' :
-                     streamStatus?.is_live ? 'Carregando transmissão...' : 'Nenhuma transmissão ativa'}
-                  </h3>
-                  <p className="text-gray-300 text-center max-w-md">
-                    {playerError ? playerError :
-                     streamStatus?.is_live 
-                      ? 'Aguarde o carregamento da transmissão'
-                      : 'Inicie uma playlist ou transmissão OBS para visualizar aqui'
-                    }
-                  </p>
-                  {playerError && (
-                    <button
-                      onClick={() => {
-                        setPlayerError(null);
-                        loadStreamStatus();
-                      }}
-                      className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Tentar Novamente
-                    </button>
-                  )}
-                </div>
-              )}
+              <StreamingPlayerManager
+                className="w-full h-full"
+                showPlayerSelector={false}
+                enableSocialSharing={false}
+                enableViewerCounter={true}
+                enableWatermark={true}
+                autoDetectStream={true}
+              />
             </div>
           </div>
         </div>

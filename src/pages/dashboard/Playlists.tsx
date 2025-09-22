@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import IFrameVideoPlayer from '../../components/IFrameVideoPlayer';
+import StreamingPlayerManager from '../../components/players/StreamingPlayerManager';
 
 interface Video {
   id: number;
@@ -1159,27 +1159,13 @@ const Playlists: React.FC = () => {
 
             {/* Player */}
             <div className="w-full h-full p-4 pt-16">
-              <IFrameVideoPlayer
-                src={playerUrl}
-                title={`Transmissão: ${selectedPlaylist.nome}`}
-                isLive={true}
-                autoplay={true}
-                controls={true}
+              <StreamingPlayerManager
                 className="w-full h-full"
-                onError={(error) => {
-                  console.error('Erro no player de playlist:', error);
-                  toast.error('Erro ao carregar transmissão da playlist');
-                }}
-                onReady={() => {
-                  console.log('Player de playlist pronto');
-                }}
-                streamStats={transmissionStatus?.transmission ? {
-                  viewers: transmissionStatus.transmission.stats.viewers,
-                  bitrate: transmissionStatus.transmission.stats.bitrate,
-                  uptime: transmissionStatus.transmission.stats.uptime,
-                  quality: '1080p',
-                  isRecording: false
-                } : undefined}
+                showPlayerSelector={false}
+                enableSocialSharing={true}
+                enableViewerCounter={true}
+                enableWatermark={true}
+                autoDetectStream={true}
               />
             </div>
           </div>

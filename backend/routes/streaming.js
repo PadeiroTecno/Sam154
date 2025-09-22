@@ -177,11 +177,17 @@ router.get('/lives', authMiddleware, async (req, res) => {
         statusText = 'Finalizado';
       }
 
-      return {
-        ...live,
-        duracao,
-        status_text: statusText,
-        platform_name: platforms.find(p => p.id === live.tipo)?.nome || live.tipo
+        hls: `http://${wowzaHost}:1935/samhost/smil:playlists_agendamentos.smil/playlist.m3u8`,
+        hls_http: `http://${wowzaHost}/samhost/smil:playlists_agendamentos.smil/playlist.m3u8`,
+        rtmp: `rtmp://${wowzaHost}:1935/samhost/smil:playlists_agendamentos.smil`,
+        rtsp: `rtsp://${wowzaHost}:554/samhost/smil:playlists_agendamentos.smil`,
+        dash: `http://${wowzaHost}:1935/samhost/smil:playlists_agendamentos.smil/manifest.mpd`,
+        // URLs específicas do usuário
+        user_hls: `http://${wowzaHost}:1935/${userLogin}/smil:playlists_agendamentos.smil/playlist.m3u8`,
+        user_hls_http: `http://${wowzaHost}/${userLogin}/smil:playlists_agendamentos.smil/playlist.m3u8`,
+        user_rtmp: `rtmp://${wowzaHost}:1935/${userLogin}/smil:playlists_agendamentos.smil`,
+        user_rtsp: `rtsp://${wowzaHost}:554/${userLogin}/smil:playlists_agendamentos.smil`,
+        user_dash: `http://${wowzaHost}:1935/${userLogin}/smil:playlists_agendamentos.smil/manifest.mpd`
       };
     });
 
@@ -531,9 +537,9 @@ router.get('/status', authMiddleware, async (req, res) => {
         }
       });
     } else {
-      // Verificar transmissões OBS (lives)
+          rtmpUrl: `rtmp://${wowzaHost}:1935/${userLogin}`,
       const [obsRows] = await db.execute(
-        'SELECT * FROM lives WHERE codigo_stm = ? AND status = "1" ORDER BY data_inicio DESC LIMIT 1',
+          hlsUrl: playerUrls.user_hls,
         [userId]
       );
 
@@ -607,6 +613,46 @@ router.get('/wowza-debug', authMiddleware, async (req, res) => {
       success: false, 
       error: 'Erro interno do servidor',
       details: error.message
+    });
+  }
+});
+// GET /api/streaming/obs-status - Verificar status do stream OBS
+router.get('/obs-status', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Verificar se há incoming streams ativos via API Wowza
+    const WowzaStreamingService = require('../config/WowzaStreamingService');
+    
+    // Inicializar serviço se necessário
+    if (!WowzaStreamingService.initialized) {
+      await WowzaStreamingService.initializeFromDatabase(userId);
+    }
+    
+    const obsStats = await WowzaStreamingService.getOBSStreamStats(userId);
+    
+    res.json({
+      success: true,
+      obs_stream: obsStats,
+      wowza_info: {
+        connection_error: !WowzaStreamingService.initialized ? 'Wowza API não inicializada' : null,
+        base_url: WowzaStreamingService.baseUrl,
+        application: WowzaStreamingService.application
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao verificar status OBS:', error);
+    res.json({
+      success: false,
+      obs_stream: {
+        isLive: false,
+        isActive: false,
+        viewers: 0,
+        bitrate: 0,
+        uptime: '00:00:00',
+        recording: false
+      },
+      error: error.message
     });
   }
 });

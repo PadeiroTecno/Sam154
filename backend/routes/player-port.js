@@ -69,8 +69,8 @@ router.get('/iframe', async (req, res) => {
 
                     const wowzaHost = 'stmv1.udicast.com';
 
-                    // Para transmissão SMIL, usar URL específica
-                    videoUrl = `http://${wowzaHost}:80/${userLogin}/smil:playlists_agendamentos.smil/playlist.m3u8`;
+                    // Para transmissão SMIL, usar URL específica do usuário
+                    videoUrl = `http://${wowzaHost}:1935/${userLogin}/smil:playlists_agendamentos.smil/playlist.m3u8`;
                     title = `Playlist: ${transmission.playlist_nome}`;
                     isLive = true;
 
@@ -102,7 +102,7 @@ router.get('/iframe', async (req, res) => {
                                 console.warn('Erro ao buscar domínio do servidor:', error.message);
                             }
 
-                            videoUrl = `http://${wowzaHost}:80/${userLogin}/${userLogin}_live/playlist.m3u8`;
+                            videoUrl = `http://${wowzaHost}:1935/samhost/${userLogin}_live/playlist.m3u8`;
                             title = `Stream OBS - ${fallbackUserLogin}`;
                             isLive = true;
                         } else {
@@ -139,7 +139,7 @@ router.get('/iframe', async (req, res) => {
                     const transmission = userTransmission[0];
                     console.log(`✅ Transmissão de usuário encontrada:`, transmission);
                     const wowzaHost = 'stmv1.udicast.com';
-                    videoUrl = `http://${wowzaHost}:1935/${login}/smil:playlists_agendamentos.smil/playlist.m3u8`;
+                    videoUrl = `http://${wowzaHost}:1935/samhost/smil:playlists_agendamentos.smil/playlist.m3u8`;
                     title = `Playlist: ${transmission.playlist_nome}`;
                     isLive = true;
                 } else {
@@ -161,7 +161,7 @@ router.get('/iframe', async (req, res) => {
                             if (incomingStreamsResult.hasActiveStreams) {
                                 console.log(`✅ Stream OBS ativo encontrado para ${login}:`, incomingStreamsResult.activeStreams[0].name);
                                 const wowzaHost = 'stmv1.udicast.com';
-                                videoUrl = `http://${wowzaHost}:1935/${login}/${login}_live/playlist.m3u8`;
+                                videoUrl = `http://${wowzaHost}:1935/samhost/${login}_live/playlist.m3u8`;
                                 title = `Stream OBS - ${login}`;
                                 isLive = true;
                             } else {
@@ -199,10 +199,10 @@ router.get('/iframe', async (req, res) => {
             if (stream.includes('_playlist')) {
                 // Stream de playlist - usar aplicação específica do usuário
                 const userFromStream = stream.replace('_playlist', '');
-                videoUrl = `http://${wowzaHost}:80/${userFromStream}/${userFromStream}/playlist.m3u8`;
+                videoUrl = `http://${wowzaHost}:1935/samhost/smil:playlists_agendamentos.smil/playlist.m3u8`;
             } else {
                 // Stream OBS - usar aplicação específica do usuário
-                videoUrl = `http://${wowzaHost}:80/${userLogin}/${userLogin}_live/playlist.m3u8`;
+                videoUrl = `http://${wowzaHost}:1935/samhost/${userLogin}_live/playlist.m3u8`;
             }
             title = `Stream: ${stream}`;
             isLive = true;
